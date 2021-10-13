@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>THREE JS 4</title>
+  </head>
+  <body>
+    <div class="div"></div>
+    <script type="module">
+      import * as THREE from './three.module.js';
+      import { OrbitControls } from './OrbitControls.js';
+      const scene = new THREE.Scene();
+
+      scene.background = new THREE.Color(0x2a34bc);
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000,
+      );
+
+      const renderer = new THREE.WebGLRenderer();
+
+      const loader = new THREE.TextureLoader();
+
+      loader.load('./mars.jpg', (texture) => {
+        scene.background = texture;
+      });
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.querySelector('.div').appendChild(renderer.domElement); // Mantenho o aspecto do objeto mesmo quando redimensiono a tela!
+
+      const updateScreenSize = () => {
+        window.addEventListener('resize', () => {
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+        });
+      };
+
+      scene.add(new THREE.GridHelper(4,20));
+
+      const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+
+      const cube = new THREE.Mesh(geometry, material);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+
+      controls.minDistance = 3;
+      controls.maxDistance = 12;
+      controls.screenSpacePanning = true;
+
+      camera.position.z = 6;
+      scene.add(cube);
+
+      const animate = () => {
+        requestAnimationFrame(animate);
+
+        // cube.rotation.x += 0.02;
+
+        // cube.rotation.y += 0.02;
+
+        // cube.position.x += 0.01;
+        renderer.render(scene, camera);
+      };
+
+      const GameLoop = () => {
+        animate();
+        updateScreenSize();
+      };
+
+      window.onload = () => {
+        GameLoop();
+      };
+    </script>
+  </body>
+</html>

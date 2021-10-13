@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="main.css" />
+    <title>Example 2 ThreeJS</title>
+  </head>
+  <body>
+    <h1>Hello Three JS</h1>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.js"></script> -->
+    <!-- <script src="OrbitControls(1).js"></script> -->
+    <!-- <script src="script.js"></script>   -->
+
+    <script type="module">
+      console.log('hi');
+      import * as THREE from './three.module.js';
+      // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+      import { OrbitControls } from './OrbitControls.js';
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000,
+      );
+      camera.position.z = 5;
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setClearColor('#e5e5e5');
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Mantenho o aspecto do objeto mesmo quando redimensiono a tela!
+      const updateScreenSize = () => {
+        window.addEventListener('resize', () => {
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+        });
+      };
+
+      const raycaster = new THREE.Raycaster();
+
+      const mouse = new THREE.Vector2();
+
+      const geometry = new THREE.BoxGeometry(2, 2, 2);
+
+      const material = new THREE.MeshLambertMaterial({ color: 0xffcc00 });
+
+      const cube = new THREE.Mesh(geometry, material);
+
+      cube.userData.draggable = true;
+
+      cube.userData.name = 'CUBE';
+
+      // cube.position.x = 2;
+      // cube.position.set(2,2,-2);
+      // cube.scale.set(1, 2, 1);
+      // cube.rotation.set(45, 0, 0);
+
+      scene.add(cube);
+
+      let draggable = new THREE.Object3D();
+
+      const light = new THREE.PointLight(0xffffff, 1, 500);
+      light.position.set(10, 0, 25);
+      scene.add(light);
+
+      const render = () => {
+        // cube.rotation.x += 0.02;
+        renderer.render(scene, camera);
+      };
+
+      function onMouseMove(event) {
+        event.preventDefault();
+
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(scene.children);
+
+        if (intersects.length > 0 && intersects[0].object.userData.draggable) {
+          console.log(intersects[0].object.userData.name);
+
+          draggable = intersects[0].object;
+        }
+        // window.open('https://betrybe.com', '_blank')
+        for (let i = 0; i < intersects.length; i += 1) {
+          intersects[i].object.material.color.set(0xff0000);
+          // intersects[i].object.material.wireframe = true;
+          console.log(intersects[i]);
+          cube.rotation.x = 45;
+          cube.rotation.y = 45;
+          camera.position.x = 2;
+          camera.position.z += 2;
+          // camera.lookAt(0,0, 5)
+        }
+        // console.log(event.clientX);
+      }
+
+      // Controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.minDistance = 2;
+      controls.maxDistance = 9;
+      const GameLoop = () => {
+        requestAnimationFrame(GameLoop);
+
+        window.addEventListener('click', onMouseMove);
+        controls.update();
+        render();
+        updateScreenSize();
+      };
+
+      window.onload = () => {
+        GameLoop(); 
+      };
+    </script>
+  </body>
+</html>
